@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash ,faArrowLeft} from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProductsPage = () => {
-    
   const [productName, setProductName] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productPrice, setProductPrice] = useState('');
@@ -13,6 +15,7 @@ const ProductsPage = () => {
   const [editProduct, setEditProduct] = useState(null);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [showEditProductModal, setShowEditProductModal] = useState(false);
+  const [processingAdd, setProcessingAdd] = useState(false);
 
   useEffect(() => {
     const unsubscribe = db.collection('products').onSnapshot((snapshot) => {
@@ -32,7 +35,7 @@ const ProductsPage = () => {
 
   const handleCloseAddProductModal = () => {
     setShowAddProductModal(false);
-    // Clear input fields when the modal is closed
+    setProcessingAdd(false);
     setProductName('');
     setProductCategory('');
     setProductPrice('');
@@ -45,44 +48,77 @@ const ProductsPage = () => {
 
   const handleCloseEditProductModal = () => {
     setShowEditProductModal(false);
-    // Clear input fields when the modal is closed
     setEditProduct(null);
   };
 
   const handleSubmitAddProduct = async (e) => {
     e.preventDefault();
+    setProcessingAdd(true);
 
-    // Add the product data to Firestore
-    await db.collection('products').add({
-      productName,
-      productCategory,
-      productPrice: parseFloat(productPrice),
-    });
+    try {
+      await db.collection('products').add({
+        productName,
+        productCategory,
+        productPrice: parseFloat(productPrice),
+      });
 
-    // Clear the input fields and close the modal
-    setProductName('');
-    setProductCategory('');
-    setProductPrice('');
-    setShowAddProductModal(false);
+      setProductName('');
+      setProductCategory('');
+      setProductPrice('');
+      setShowAddProductModal(false);
+      setProcessingAdd(false);
+
+      // Notify product added
+      toast.success('Product added successfully!', { position: 'top-right' });
+    } catch (error) {
+      console.error('Error adding product:', error);
+
+      // Notify error
+      toast.error('Error adding product. Please try again later.', {
+        position: 'top-right',
+      });
+    }
   };
 
   const handleSaveEditProduct = async () => {
     if (editProduct) {
       const { id, ...updatedProduct } = editProduct;
 
-      await db.collection('products').doc(id).update(updatedProduct);
+      try {
+        await db.collection('products').doc(id).update(updatedProduct);
 
-      // Clear the editProduct state and close the modal
-      setEditProduct(null);
-      setShowEditProductModal(false);
+        setEditProduct(null);
+        setShowEditProductModal(false);
+
+        // Notify product edited
+        toast.success('Product edited successfully!', { position: 'top-right' });
+      } catch (error) {
+        console.error('Error editing product:', error);
+
+        // Notify error
+        toast.error('Error editing product. Please try again later.', {
+          position: 'top-right',
+        });
+      }
     }
   };
 
   const handleDelete = async (id) => {
-    await db.collection('products').doc(id).delete();
+    try {
+      await db.collection('products').doc(id).delete();
+
+      // Notify product deleted
+      toast.error('Product deleted!', { position: 'top-right' });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+
+      // Notify error
+      toast.error('Error deleting product. Please try again later.', {
+        position: 'top-right',
+      });
+    }
   };
 
- 
 
   const modalStyles = {
     modal: {
@@ -100,12 +136,45 @@ const ProductsPage = () => {
       opacity: showAddProductModal || showEditProductModal ? 1 : 0,
       pointerEvents: showAddProductModal || showEditProductModal ? 'auto' : 'none',
     },
+    nav: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '10px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+      backgroundColor: 'white',
+    },
+    backArrow: {
+      fontSize: '1.5rem',
+      color: '#000000',
+    },
+    heading: {
+      fontSize: '1.5rem',
+      fontWeight: 'bold',
+    },
+    addButton: {
+      margin: '15px',
+      padding: '10px 20px',
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+      transition: 'background-color 0.3s ease',
+    },
+    addButtonHover: {
+      backgroundColor: '#0056b3',
+    },
     modalHeader: {
       backgroundColor: '#007bff',
       color: 'white',
       padding: '15px',
       borderTopLeftRadius: '5px',
       borderTopRightRadius: '5px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     },
     modalTitle: {
       fontWeight: 'bold',
@@ -121,8 +190,27 @@ const ProductsPage = () => {
       borderTopLeftRadius: '5px',
       borderTopRightRadius: '5px',
     },
+    inputLabel: {
+      fontSize: '1rem',
+      marginBottom: '8px',
+    },
+    inputBox: {
+      width: '100%',
+      padding: '10px',
+      border: '1px solid #ddd',
+      borderRadius: '5px',
+      marginBottom: '15px',
+    },
+    selectBox: {
+      width: '100%',
+      padding: '10px',
+      border: '1px solid #ddd',
+      borderRadius: '5px',
+      marginBottom: '15px',
+      backgroundColor: 'white',
+    },
   };
-
+  
   const cardStyles = {
     card: {
       border: '1px solid #ddd',
@@ -160,9 +248,12 @@ const ProductsPage = () => {
       borderRadius: '3px',
     },
   };
+  
+ 
 
   return (
     <div>
+ 
         <Link to="/"><FontAwesomeIcon icon={faArrowLeft} style={{color: "#000000",}} /></Link>
       <h2>Products</h2>
       <button className="add-button" onClick={handleAddProduct}>
@@ -272,6 +363,7 @@ const ProductsPage = () => {
                   type="number"
                   id="editProductPrice"
                   value={editProduct ? editProduct.productPrice : ''}
+                  placeholder=''
                   onChange={(e) =>
                     setEditProduct({
                       ...editProduct,
@@ -332,6 +424,7 @@ const ProductsPage = () => {
           </div>
         ))}
       </div>
+      <ToastContainer position="top-right" autoClose={1000} />
     </div>
   );
 };

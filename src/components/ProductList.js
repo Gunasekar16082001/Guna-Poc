@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faIndianRupeeSign} from '@fortawesome/free-solid-svg-icons';
+import { faIndianRupeeSign } from '@fortawesome/free-solid-svg-icons';
 
 const ProductList = ({ addProductToCalculator }) => {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = db.collection('products').onSnapshot((snapshot) => {
@@ -13,6 +14,7 @@ const ProductList = ({ addProductToCalculator }) => {
         productData.push({ id: doc.id, ...doc.data() });
       });
       setProducts(productData);
+      setLoading(false); // Set loading to false when data is fetched
     });
 
     return () => unsubscribe();
@@ -32,20 +34,24 @@ const ProductList = ({ addProductToCalculator }) => {
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     cursor: 'pointer',
   };
+
   return (
     <div style={productListStyle}>
-    
-     
-        {products.map((product) => (
-         <div
-         key={product.id}
-         style={cardStyle}
-         onClick={() => addProductToCalculator(product)}
-       >
-            <div>{product.productName}</div> <FontAwesomeIcon icon={faIndianRupeeSign} style={{color: "#000000",}} /> {product.productPrice}
+      {loading ? (
+        <p>Loading product...</p>
+      ) : (
+        products.map((product) => (
+          <div
+            key={product.id}
+            style={cardStyle}
+            onClick={() => addProductToCalculator(product)}
+          >
+            <div>{product.productName}</div>{' '}
+            <FontAwesomeIcon icon={faIndianRupeeSign} style={{ color: '#000000' }} />{' '}
+            {product.productPrice}
           </div>
-        ))}
-    
+        ))
+      )}
     </div>
   );
 };

@@ -71,14 +71,15 @@ function Mainpage() {
 
   return (
     <div>
-      <h1>Main Page</h1>
       <Link to="/products">Products</Link>
-
+      <br />
+      <Link to="/bill-history">bills</Link>   
+        <br />
+      <Link to="/bill-store">billstore</Link>
       <div style={containerStyle}>
         <div style={bigGridStyle}>
             <ProductList
               addProductToCalculator={addProductToCalculator}
-             
             />
         </div>
         <div style={smallGridStyle}>
