@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProductList from '../components/ProductList';
 import Calculator from '../components/Calculater';
 import { Link } from 'react-router-dom';
+import BillsHistory from './BillsHistory';
 
 function Mainpage() {
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -47,14 +48,13 @@ function Mainpage() {
   const containerStyle = {
     display: 'flex',
     flexWrap: 'wrap',
-    padding: '20px',
     justifyContent: 'flex-start', // Start with horizontal layout
   };
 
   const bigGridStyle = {
     flex: '2', // Takes up 2/3 of the available space
-    background: '#3498db',
-    color: '#fff',
+   
+    color: 'black',
     textAlign: 'center',
     padding: '20px',
     boxSizing: 'border-box', // Include padding in width calculation
@@ -62,8 +62,7 @@ function Mainpage() {
 
   const smallGridStyle = {
     flex: '1',
-    background: '#3498db',
-    color: '#fff',
+    color: 'black',
     textAlign: 'center',
     padding: '20px',
     boxSizing: 'border-box',
@@ -88,10 +87,11 @@ function Mainpage() {
             removeProductFromCalculator={removeProductFromCalculator}
             setSelectedProducts={setSelectedProducts}
           />
+          <div><BillsHistory /></div>
         </div>
       </div>
     </div>
-  );
+  );    
 }
 
 export default Mainpage;   

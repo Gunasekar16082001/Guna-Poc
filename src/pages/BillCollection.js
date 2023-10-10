@@ -12,12 +12,9 @@ const BillStore = () => {
   const [totalForSelectedDate, setTotalForSelectedDate] = useState(0);
   const [error, setError] = useState(null);
 
-  // Declare unsubscribe in the component scope
-  let unsubscribe = null;
-
   // Fetch available years, months, and days
   useEffect(() => {
-    unsubscribe = db
+    const unsubscribe = db
       .collectionGroup('bill-collections') // Query all subcollections named 'bill-collections'
       .get()
       .then((querySnapshot) => {
@@ -40,12 +37,7 @@ const BillStore = () => {
         console.error('Error fetching available dates:', error);
       });
 
-    return () => {
-      // Ensure unsubscribe is a function before calling it
-      if (unsubscribe && typeof unsubscribe === 'function') {
-        unsubscribe();
-      }
-    };
+    return () => unsubscribe();
   }, []);
 
   const handleYearSelect = (event) => {
@@ -65,7 +57,7 @@ const BillStore = () => {
 
   useEffect(() => {
     if (selectedYear && selectedMonth && selectedDay) {
-      unsubscribe = db
+      const unsubscribe = db
         .collection('storebills')
         .doc(selectedYear)
         .collection(selectedMonth)
@@ -92,12 +84,7 @@ const BillStore = () => {
           setTotalForSelectedDate(total);
         });
 
-      return () => {
-        // Ensure unsubscribe is a function before calling it
-        if (unsubscribe && typeof unsubscribe === 'function') {
-          unsubscribe();
-        }
-      };
+      return () => unsubscribe();
     }
   }, [selectedYear, selectedMonth, selectedDay]);
 

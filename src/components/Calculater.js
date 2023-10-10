@@ -1,5 +1,7 @@
 import React from 'react';
-import { db } from '../firebase'; // Make sure to import your Firebase configuration
+import { db } from '../firebase';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const Calculator = ({ selectedProducts, removeProductFromCalculator, setSelectedProducts }) => {
   const calculateTotalPrice = () => {
@@ -65,43 +67,50 @@ const Calculator = ({ selectedProducts, removeProductFromCalculator, setSelected
     cursor: 'pointer',
   };
 
+  const scrollContainerStyle = {
+    maxHeight: '200px', 
+    overflowY: 'scroll', // Enable vertical scrolling
+  };
+
   return (
     <div style={calculatorStyle}>
       <h2>Calculator</h2>
       <button onClick={removeAllProducts} style={buttonStyle}>
         Remove All
       </button>
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Remove</th>
-          </tr>
-        </thead>
-        <tbody>
-          {selectedProducts.map((product) => (
-            <tr key={product.id}>
-              <td>{product.productName}</td>
-              <td>
-                <button onClick={() => updateQuantity(product, 'decrease')}>-</button>
-                {product.quantity}
-                <button onClick={() => updateQuantity(product, 'increase')}>+</button>
-              </td>
-              <td>{(product.quantity * product.productPrice).toFixed(2)}</td>
-              <td>
-                <button
-                  style={buttonStyle}
-                  onClick={() => removeProductFromCalculator(product.id)}
-                >
-                  Remove
-                </button>
-              </td>
+      <div style={scrollContainerStyle}> {/* Wrap the content in a scrollable container */}
+        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Remove</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {selectedProducts.map((product) => (
+              <tr key={product.id}>
+                <td>{product.productName}</td>
+                <td>
+                  <button onClick={() => updateQuantity(product, 'decrease')}>-</button>
+                  {product.quantity}
+                  <button onClick={() => updateQuantity(product, 'increase')}>+</button>
+                </td>
+                <td>{(product.quantity * product.productPrice).toFixed(2)}</td>
+                <td>
+                  <button
+                    style={buttonStyle}
+                    onClick={() => removeProductFromCalculator(product.id)}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div>
         <button onClick={storeProducts} style={buttonStyle}>
           Store
